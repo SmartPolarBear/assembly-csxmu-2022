@@ -1,37 +1,82 @@
-OUTPUT MACRO ASC
-    MOV DL,ASC
+
+CODE SEGMENT
+    ASSUME CS:CODE
+
+PUTC PROC
+    PUSH BP
+    MOV BP,SP
+    PUSH DX
+    PUSH AX
+
+    MOV DL,[BP-2]
     MOV AH,02H
     INT 21H
-    ENDM
 
-CODE SEGMENT; USE16
-    ASSUME CS:CODE
+    POP AX
+    POP DX
+    POP BP
+    RET
+PUTC ENDP
+
+NLINE PROC 
+    PUSH BP
+    MOV BP,SP
+    PUSH DX
+
+    MOV DX,0DH
+    PUSH DX
+    CALL PUTC
+    ADD SP,2
+
+    MOV DX,0AH
+    PUSH DX
+    CALL PUTC
+    ADD SP,2 
+
+    POP DX
+    POP BP
+    RET
+NLINE ENDP
+
+EMPTY PROC
+    PUSH BP
+    MOV BP,SP
+    PUSH DX
+    PUSH CX
+
+    MOV CX,02H
+SHOW:
+    MOV DX,0H
+    PUSH DX
+    CALL PUTC
+    ADD SP,2
+    LOOP SHOW
+
+    POP CX
+    POP DX
+    POP BP
+    RET
+EMPTY ENDP
 
 MAIN PROC FAR
 START:
     MOV DL,10H
-    MOV BL,0FH
+    MOV BL,0FH ;15
 
 ROW:
-    MOV CX,10H
+    MOV CX,10H ;16
 LINE:
-        MOV AL,DL
-        OUTPUT AL
-        PUSH DX
 
-        OUTPUT 0H
-        OUTPUT 0H
-
-        POP DX
-        INC DL
-    LOOP LINE
-    
     PUSH DX
+    CALL PUTC
+    ADD SP,2
 
-    OUTPUT 0DH
-    OUTPUT 0AH
+    CALL EMPTY
 
-    POP DX
+    INC DL
+LOOP LINE
+    
+    CALL NLINE
     
     DEC BL
     CMP BL,0H
