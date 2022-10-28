@@ -1,0 +1,48 @@
+OUTPUT MACRO ASC
+    MOV DL,ASC
+    MOV AH,02H
+    INT 21H
+    ENDM
+
+CODE SEGMENT; USE16
+    ASSUME CS:CODE
+
+MAIN PROC FAR
+START:
+    MOV DL,10H
+    MOV BL,0FH
+
+ROW:
+    MOV CX,10H
+LINE:
+        MOV AL,DL
+        OUTPUT AL
+        PUSH DX
+
+        OUTPUT 0H
+        OUTPUT 0H
+
+        POP DX
+        INC DL
+    LOOP LINE
+    
+    PUSH DX
+
+    OUTPUT 0DH
+    OUTPUT 0AH
+
+    POP DX
+    
+    DEC BL
+    CMP BL,0H
+    JNE ROW
+    JE EXIT
+
+EXIT:
+    MOV AH,4CH
+    INT 21H
+
+MAIN ENDP
+
+CODE ENDS
+    END MAIN
