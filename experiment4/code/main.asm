@@ -1,14 +1,18 @@
 DATA SEGMENT
-         VX     SBYTE  1
-         VY     SBYTE  1
+         VX      SBYTE  1
+         VY      SBYTE  1
 
-         TOP    SBYTE  0
-         LEFT   SBYTE  0
-         BOTTOM SBYTE  23
-         RIGHT  SBYTE  79
+         TOP     SBYTE  0
+         LEFT    SBYTE  0
+         BOTTOM  SBYTE  23
+         RIGHT   SBYTE  79
 
-         X      SBYTE  2
-         Y      SBYTE  2
+         X       SBYTE  0
+         Y       SBYTE  0
+         ITIMES  BYTE   0
+
+         BALLSYM BYTE 'O'
+         RTC_LIM BYTE 9
 DATA ENDS
 
 STACK SEGMENT
@@ -41,6 +45,23 @@ PUTC PROC
             RET
 PUTC ENDP
 
+PUTBALL PROC NEAR
+            CALL   CLS
+
+            MOV    AH,02H
+            MOV    BH,0
+            MOV    DL,X
+            MOV    DH,Y
+            INT    10H
+
+            MOV    DL,BALLSYM
+            PUSH   DX
+            CALL   PUTC
+            ADD    SP,2
+
+            RET
+PUTBALL ENDP
+
 RTC_INT PROC NEAR
             PUSH   AX
             PUSH   BX
@@ -49,6 +70,11 @@ RTC_INT PROC NEAR
             PUSH   ES
             PUSH   DS
 
+            INC    ITIMES
+            MOV    AL, RTC_LIM
+            CMP    ITIMES, AL
+            JLE    ENDINT
+            MOV    ITIMES, 0
 
             CLC
             MOV    AL,X
@@ -80,18 +106,9 @@ RTC_INT PROC NEAR
             MOV    AL,VY
             ADC    Y,AL
 
-            CALL   CLS
+            CALL   PUTBALL
 
-            MOV    AH,02H
-            MOV    BH,0
-            MOV    DL,X
-            MOV    DH,Y
-            INT    10H
-
-            MOV    DX,48
-            PUSH   DX
-            CALL   PUTC
-            ADD    SP,2
+    ENDINT: 
 
             POP    DS
             POP    ES
@@ -123,6 +140,8 @@ MAIN PROC FAR
             MOV    AX,251CH
             INT    21H
             POP    DS
+
+            CALL   PUTBALL
 
             STI
 
