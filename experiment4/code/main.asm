@@ -5,14 +5,14 @@ DATA SEGMENT
          TOP     SBYTE  0
          LEFT    SBYTE  0
          BOTTOM  SBYTE  23
-         RIGHT   SBYTE  79
+         RIGHT   SBYTE  78
 
          X       SBYTE  0
          Y       SBYTE  0
          ITIMES  BYTE   0
 
          BALLSYM BYTE 'O'
-         RTC_LIM BYTE 9
+         RTC_LIM BYTE 1
 DATA ENDS
 
 STACK SEGMENT
@@ -63,12 +63,15 @@ PUTBALL PROC NEAR
 PUTBALL ENDP
 
 RTC_INT PROC NEAR
+            CLI
+
             PUSH   AX
             PUSH   BX
             PUSH   CX
             PUSH   DX
             PUSH   ES
             PUSH   DS
+
 
             INC    ITIMES
             MOV    AL, RTC_LIM
@@ -116,7 +119,8 @@ RTC_INT PROC NEAR
             POP    CX
             POP    BX
             POP    AX
-
+            
+            STI
             IRET
 RTC_INT ENDP
 
